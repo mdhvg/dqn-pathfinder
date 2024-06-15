@@ -5,26 +5,40 @@ import pygame
 # Set the working directory to the directory of this file
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-# Read the config file
-config = configparser.ConfigParser()
-config.read("config.ini")
 
-# Set the dimensions of the grid
-grid_width = int(config["Grid"]["width"])
-grid_height = int(config["Grid"]["height"])
-cell_size = int(config["Grid"]["cell_size"])
+class Config:
+    grid_width: int
+    grid_height: int
+    window_width: int
+    window_height: int
+    cell_size: int
+    font: str
+    font_size: int
+    window_size: tuple[int, int]
+    map_dir: str = "maps/"
 
-# Set the font
-font = config["Fonts"]["font"]
-font_size = int(config["Fonts"]["font_size"])
 
-# Set the size of the windoww
-grid_width = grid_width * cell_size
-grid_height = grid_height * cell_size
-window_size = (grid_width, grid_height + 50)
+def load_config(path: str = "config.ini") -> Config:
+    # Read the config file
+    configFile = configparser.ConfigParser()
+    configFile.read("config.ini")
+    config = Config()
+    config.cell_size = int(configFile["Grid"]["cell_size"])
+    config.grid_width = int(configFile["Grid"]["width"])
+    config.grid_height = int(configFile["Grid"]["height"])
+    config.window_width = config.grid_width * config.cell_size
+    config.window_height = config.grid_height * config.cell_size
+    config.font = configFile["Fonts"]["font"]
+    config.font_size = int(configFile["Fonts"]["font_size"])
+    config.window_size = (
+        config.window_width,
+        config.window_height + 50,
+    )
+    config.map_dir = configFile["Files"]["map_dir"]
+    if config.map_dir[-1] != "/":
+        config.map_dir += "/"
+    os.makedirs(config.map_dir, exist_ok=True)
+    return config
+
 
 # Load image
-wall_image = pygame.image.load("images/wall.png")
-agent_image = pygame.image.load("images/agent.png")
-goal_image = pygame.image.load("images/goal.png")
-clear_image = pygame.image.load("images/clear.png")
