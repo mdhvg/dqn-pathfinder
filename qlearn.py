@@ -5,27 +5,40 @@ import os
 from globals import *
 from widgets import Button, ImageButton
 
-# Initialize pygame
-pygame.init()
 
-# Create the window
-window = pygame.display.set_mode(window_size)
+class Mode:
+    WALL = 0
+    AGENT = 1
+    GOAL = 2
+    CLEAR = 3
 
-# Buttons
-save_button = Button(
-    grid_width - 100 - 10,
-    grid_height + 10,
-    100,
-    30,
-    (0, 255, 0),
-    "Save",
-    font,
-    font_size,
-)
-wall_button = ImageButton(10, grid_height + 10, "images/wall.png", 30, 30)
-agent_button = ImageButton(50, grid_height + 10, "images/agent.png", 30, 30)
-goal_button = ImageButton(90, grid_height + 10, "images/goal.png", 30, 30)
-clear_button = ImageButton(130, grid_height + 10, "images/clear.png", 30, 30)
+    @staticmethod
+    def get_name(mode: int) -> str:
+        if mode == Mode.WALL:
+            return "Wall"
+        if mode == Mode.AGENT:
+            return "Agent"
+        if mode == Mode.GOAL:
+            return "Goal"
+        if mode == Mode.CLEAR:
+            return "Clear"
+
+        return "Unknown"
+
+    # function to get the image of the mode
+    @staticmethod
+    def get_image(mode: int) -> pygame.Surface:
+        if mode == Mode.WALL:
+            return wall_image
+        if mode == Mode.AGENT:
+            return agent_image
+        if mode == Mode.GOAL:
+            return goal_image
+        if mode == Mode.CLEAR:
+            return clear_image
+
+        return clear_image
+
 
 # Game loop
 running = True

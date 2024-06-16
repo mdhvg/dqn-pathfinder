@@ -1,4 +1,4 @@
-from map import Map
+from Map import Map
 from globals import Config
 import pygame
 from widgets import *
@@ -47,6 +47,16 @@ class MapEditor:
             (0, 255, 0),
             self.font,
             "Save",
+        )
+
+        self.clear_button = TextButton(
+            self.config.window_width - 100 - 10 - 100 - 10,
+            self.config.window_height + 10,
+            100,
+            30,
+            (0, 255, 0),
+            self.font,
+            "Clear",
         )
 
         # Create draw mode status text
@@ -108,6 +118,9 @@ class MapEditor:
         # Draw the save button
         self.save_button.draw(self.window)
 
+        # Draw the clear button
+        self.clear_button.draw(self.window)
+
         # Draw the status
         self.window.blit(self.status, self.status_rect)
 
@@ -120,7 +133,6 @@ class MapEditor:
                 self.running = False
                 return
             if event.type == pygame.MOUSEBUTTONDOWN:
-                self.drag = True
                 x, y = pygame.mouse.get_pos()
                 for i in range(len(self.mode_buttons)):
                     if self.mode_buttons[i].rect.collidepoint(x, y):
@@ -130,32 +142,31 @@ class MapEditor:
                     self.map.save()
                     self.running = False
                     return
+                if self.clear_button.rect.collidepoint(x, y):
+                    self.map.walls.clear()
+                    return
 
             if event.type == pygame.MOUSEBUTTONDOWN or self.drag:
+                self.drag = True
                 x, y = pygame.mouse.get_pos()
                 grid_x = x // self.config.cell_size
                 grid_y = y // self.config.cell_size
 
-                if (
-                    grid_x >= self.config.grid_width
-                    or grid_y >= self.config.grid_height
-                ):
-                    return
-
-                coord = [grid_x, grid_y]
-                if self.drawmodes[self.mode] == "Wall":
-                    self.map.walls.append(coord)
-                if self.drawmodes[self.mode] == "Agent":
-                    if coord in self.map.walls:
-                        self.map.walls.remove(coord)
-                    self.map.agent = coord
-                if self.drawmodes[self.mode] == "Goal":
-                    if coord in self.map.walls:
-                        self.map.walls.remove(coord)
-                    self.map.goal = coord
-                if self.drawmodes[self.mode] == "Clear":
-                    if coord in self.map.walls:
-                        self.map.walls.remove(coord)
+                if grid_x < self.config.grid_width or grid_y < self.config.grid_height:
+                    coord = [grid_x, grid_y]
+                    if self.drawmodes[self.mode] == "Wall":
+                        self.map.walls.append(coord)
+                    if self.drawmodes[self.mode] == "Agent":
+                        if coord in self.map.walls:
+                            self.map.walls.remove(coord)
+                        self.map.agent = coord
+                    if self.drawmodes[self.mode] == "Goal":
+                        if coord in self.map.walls:
+                            self.map.walls.remove(coord)
+                        self.map.goal = coord
+                    if self.drawmodes[self.mode] == "Clear":
+                        if coord in self.map.walls:
+                            self.map.walls.remove(coord)
 
             if event.type == pygame.MOUSEBUTTONUP:
                 self.drag = False

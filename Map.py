@@ -38,6 +38,16 @@ class Map:
     def set_walls(self, walls: list[list[int]] = []):
         self.walls = walls
 
+    def set_dir(self, dir: str = "maps/"):
+        self.dir = dir
+
+    def copy(self):
+        map = Map(self.name, self.grid_width, self.grid_height, self.dir)
+        map.set_agent(self.agent.copy())
+        map.set_goal(self.goal.copy())
+        map.set_walls(self.walls.copy())
+        return map
+
     def build(self):
         for i in range(self.grid_height):
             row = ["_" for _ in range(self.grid_width)]
@@ -51,9 +61,13 @@ class Map:
 
     def save(self):
         self.build()
-        filepath = f"{self.dir}{self.name}.json"
+        filepath = get_map_path(self.name, self.dir)
         with open(filepath, "w") as f:
             f.write(json.dumps(self.map, indent=4))
+
+
+def get_map_path(name: str, dir: str = "maps/") -> str:
+    return f"{dir}{name}.json"
 
 
 def load_map(filepath: str, grid_width: int, grid_height: int) -> Map:
@@ -70,14 +84,16 @@ def load_map(filepath: str, grid_width: int, grid_height: int) -> Map:
 
     for i in range(map.grid_height):
         for j in range(map.grid_width):
-            if map.map["blob"][j][i] == "O":
+            if map.map["blob"][i][j] == "O":
                 map.agent = [j, i]
-            elif map.map["blob"][j][i] == "X":
+            elif map.map["blob"][i][j] == "X":
                 map.goal = [j, i]
-            elif map.map["blob"][j][i] == "#":
+            elif map.map["blob"][i][j] == "#":
                 map.walls.append([j, i])
 
     map.dir = os.path.dirname(filepath)
+    if map.dir[-1] != "/":
+        map.dir += "/"
 
     # Cleanup for saving memory
     map.map["blob"].clear()
